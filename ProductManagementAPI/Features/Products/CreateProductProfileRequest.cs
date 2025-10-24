@@ -2,12 +2,12 @@
 
 public class CreateProductProfileRequest
 {
-    private string Name;
-    private string Brand;
-    private string SKU;
-    private ProductCategory Category;
-    private decimal Price;
-    private DateTime ReleaseDate;
-    private string? ImageURL;
-    private int StockQuantity = 1;
+    public string Name { get; set; }
+    public string Brand { get; set; }
+    public string SKU { get; set; }
+    public ProductCategory Category { get; set; }
+    public decimal Price { get; set; }
+    public DateTime ReleaseDate { get; set; }
+    public string? ImageURL { get; set; }
+    public int StockQuantity { get; set; } = 1;
 }
