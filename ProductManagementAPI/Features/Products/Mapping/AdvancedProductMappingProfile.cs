@@ -21,6 +21,8 @@ public class AdvancedProductMappingProfile : Profile
             .ForMember(dest => dest.FormattedPrice, opt => opt.MapFrom<PriceFormatterResolver>())
             .ForMember(dest => dest.ProductAge, opt => opt.MapFrom<ProductAgeResolver>())
             .ForMember(dest => dest.BrandInitials, opt => opt.MapFrom<BrandInitialsResolver>())
-            .ForMember(dest => dest.AvailabilityStatus, opt => opt.MapFrom<AvailabilityStatusResolver>());
+            .ForMember(dest => dest.AvailabilityStatus, opt => opt.MapFrom<AvailabilityStatusResolver>())
+            .ForMember(dest => dest.ImageURL, opt => opt.MapFrom<ImageURLResolver>())
+            .ForMember(dest => dest.Price, opt => opt.MapFrom<PriceResolver>());
     }
 }
