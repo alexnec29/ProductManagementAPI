@@ -6,11 +6,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Moq;
-using FluentValidation;
+using System.ComponentModel.DataAnnotations;
 using ProductManagementAPI.Data;
 using ProductManagementAPI.Features.Products;
 using ProductManagementAPI.Features.Products.DTOs;
 using ProductManagementAPI.Features.Products.Mapping;
+using ProductManagementAPI.Features.Products.Logging;
 using Xunit;
 
 namespace ProductManagementAPI.Tests;
@@ -25,31 +26,21 @@ public class CreateProductHandlerIntegrationTests : IDisposable
 
     public CreateProductHandlerIntegrationTests()
     {
-        // 1. In-memory database
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
         _context = new ApplicationDbContext(options);
-
-        // 2. AutoMapper configuration
+        
         var config = new MapperConfiguration(cfg =>
         {
             cfg.AddProfile<ProductMappingProfile>();
             cfg.AddProfile<AdvancedProductMappingProfile>();
         });
-
-        // Optional: validate mappings
+        
         config.AssertConfigurationIsValid();
-
         _mapper = config.CreateMapper();
-
-        // 3. Memory cache
         _cache = new MemoryCache(new MemoryCacheOptions());
-
-        // 4. Mock logger
         _loggerMock = new Mock<ILogger<CreateProductHandler>>();
-
-        // 5. Handler instance
         _handler = new CreateProductHandler(_context, _mapper, _cache, _loggerMock.Object);
     }
 
@@ -65,29 +56,38 @@ public class CreateProductHandlerIntegrationTests : IDisposable
         var request = new CreateProductProfileRequest
         {
             Name = "Smartphone X",
-            Brand = "TechCorp",
+            Brand = "Tech Corp",
             SKU = "ELEC-12345",
             Category = ProductCategory.Electronics,
             Price = 999.99m,
             ReleaseDate = DateTime.UtcNow.AddMonths(-2),
             StockQuantity = 10,
-            ImageURL = "https://example.com/image.jpg" // fix property name
+            ImageUrl = "https://example.com/image.jpg"
         };
-
+        
         var result = await _handler.Handle(request, CancellationToken.None);
-
+        
         Assert.NotNull(result);
+        Assert.IsType<ProductProfileDto>(result);
+        
         Assert.Equal("Electronics & Technology", result.CategoryDisplayName);
-        Assert.Equal("TX", result.BrandInitials);
+        
+        Assert.Equal("TC", result.BrandInitials);
+        
+        Assert.Contains("month", result.ProductAge.ToLower());
+        
         Assert.StartsWith("$", result.FormattedPrice);
+        
         Assert.Equal("In Stock", result.AvailabilityStatus);
-
-        _loggerMock.Verify(x => x.Log(
-            It.IsAny<LogLevel>(),
-            2001,
-            It.IsAny<It.IsAnyType>(),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
+        
+        _loggerMock.Verify(
+            x => x.Log(
+                LogLevel.Information,
+                It.Is<EventId>(e => e.Id == LogEvents.ProductCreationStarted),
+                It.IsAny<It.IsAnyType>(),
+                null,
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
     }
 
     [Fact]
@@ -95,17 +95,20 @@ public class CreateProductHandlerIntegrationTests : IDisposable
     {
         var existingProduct = new Product
         {
+            Id = Guid.NewGuid(),
             Name = "Existing Product",
             Brand = "BrandA",
             SKU = "DUPL-001",
             Category = ProductCategory.Books,
             Price = 19.99m,
             ReleaseDate = DateTime.UtcNow,
-            StockQuantity = 5
+            StockQuantity = 5,
+            IsAvailable = true,
+            CreatedAt = DateTime.UtcNow
         };
         _context.Products.Add(existingProduct);
         await _context.SaveChangesAsync();
-
+        
         var request = new CreateProductProfileRequest
         {
             Name = "New Product",
@@ -116,15 +119,20 @@ public class CreateProductHandlerIntegrationTests : IDisposable
             ReleaseDate = DateTime.UtcNow,
             StockQuantity = 5
         };
-
-        await Assert.ThrowsAsync<ValidationException>(() => _handler.Handle(request, CancellationToken.None));
-
-        _loggerMock.Verify(x => x.Log(
-            It.IsAny<LogLevel>(),
-            2002,
-            It.IsAny<It.IsAnyType>(),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
+        
+        var exception = await Assert.ThrowsAsync<ValidationException>(
+            () => _handler.Handle(request, CancellationToken.None));
+        
+        Assert.Contains("already exists", exception.Message);
+        
+        _loggerMock.Verify(
+            x => x.Log(
+                LogLevel.Warning,
+                It.Is<EventId>(e => e.Id == LogEvents.ProductValidationFailed),
+                It.IsAny<It.IsAnyType>(),
+                null,
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
     }
 
     [Fact]
@@ -133,19 +141,109 @@ public class CreateProductHandlerIntegrationTests : IDisposable
         var request = new CreateProductProfileRequest
         {
             Name = "Sofa Set",
-            Brand = "HomeDeco",
+            Brand = "Home Deco",
             SKU = "HOME-001",
             Category = ProductCategory.Home,
             Price = 500m,
             ReleaseDate = DateTime.UtcNow.AddMonths(-6),
             StockQuantity = 3,
-            ImageURL = "https://example.com/sofa.jpg" // fix property name
+            ImageUrl = "https://example.com/sofa.jpg"
         };
-
+        
         var result = await _handler.Handle(request, CancellationToken.None);
-
+        
         Assert.Equal("Home & Garden", result.CategoryDisplayName);
-        Assert.Equal(450m, result.Price); // 10% discount applied
-        Assert.Null(result.ImageURL); // content filtering for Home category
+        
+        Assert.Equal(450m, result.Price);
+        
+        Assert.Null(result.ImageUrl);
+        
+        Assert.Equal("HD", result.BrandInitials);
+        Assert.Equal("Limited Stock", result.AvailabilityStatus);
+    }
+
+    [Fact]
+    public async Task Handle_ValidProduct_LogsMetricsCorrectly()
+    {
+        var request = new CreateProductProfileRequest
+        {
+            Name = "Test Product",
+            Brand = "TestBrand",
+            SKU = "TEST-001",
+            Category = ProductCategory.Books,
+            Price = 29.99m,
+            ReleaseDate = DateTime.UtcNow.AddYears(-1),
+            StockQuantity = 15
+        };
+        
+        var result = await _handler.Handle(request, CancellationToken.None);
+        
+        _loggerMock.Verify(
+            x => x.Log(
+                LogLevel.Information,
+                It.Is<EventId>(e => e.Id == LogEvents.SKUValidationPerformed),
+                It.IsAny<It.IsAnyType>(),
+                null,
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+
+        _loggerMock.Verify(
+            x => x.Log(
+                LogLevel.Information,
+                It.Is<EventId>(e => e.Id == LogEvents.StockValidationPerformed),
+                It.IsAny<It.IsAnyType>(),
+                null,
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+
+        _loggerMock.Verify(
+            x => x.Log(
+                LogLevel.Information,
+                It.Is<EventId>(e => e.Id == LogEvents.DatabaseOperationStarted),
+                It.IsAny<It.IsAnyType>(),
+                null,
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+
+        _loggerMock.Verify(
+            x => x.Log(
+                LogLevel.Information,
+                It.Is<EventId>(e => e.Id == LogEvents.DatabaseOperationCompleted),
+                It.IsAny<It.IsAnyType>(),
+                null,
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+
+        _loggerMock.Verify(
+            x => x.Log(
+                LogLevel.Information,
+                It.Is<EventId>(e => e.Id == LogEvents.CacheOperationPerformed),
+                It.IsAny<It.IsAnyType>(),
+                null,
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task Handle_ClothingProduct_CorrectMappings()
+    {
+        var request = new CreateProductProfileRequest
+        {
+            Name = "Designer Shirt",
+            Brand = "FashionBrand",
+            SKU = "CLOTH-001",
+            Category = ProductCategory.Clothing,
+            Price = 79.99m,
+            ReleaseDate = DateTime.UtcNow.AddDays(-10),
+            StockQuantity = 1
+        };
+        
+        var result = await _handler.Handle(request, CancellationToken.None);
+        
+        Assert.Equal("Clothing & Fashion", result.CategoryDisplayName);
+        Assert.Equal("New Release", result.ProductAge);
+        Assert.Equal("Last Item", result.AvailabilityStatus);
+        Assert.Equal("F", result.BrandInitials);
+        Assert.NotNull(result.ImageUrl);
     }
 }
