@@ -7,8 +7,7 @@ namespace ProductManagementAPI.Features.Products.Mapping
     {
         public ProductMappingProfile()
         {
-            CreateMap<CreateProductProfileRequest, Product>();
-            CreateMap<Product, ProductProfileDto>();
+            
         }
     }
 }

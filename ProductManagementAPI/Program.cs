@@ -14,7 +14,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseInMemoryDatabase("ProductsDb");
 });
 
-builder.Services.AddAutoMapper(typeof(ProductMappingProfile), typeof(AdvancedProductMappingProfile));
+builder.Services.AddAutoMapper(typeof(AdvancedProductMappingProfile));
 
 builder.Services.AddScoped<CreateProductProfileValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<CreateProductProfileValidator>();

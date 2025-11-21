@@ -235,7 +235,8 @@ public class CreateProductHandlerIntegrationTests : IDisposable
             Category = ProductCategory.Clothing,
             Price = 79.99m,
             ReleaseDate = DateTime.UtcNow.AddDays(-10),
-            StockQuantity = 1
+            StockQuantity = 1,
+            ImageUrl = "https://example.com/shirt.jpg"
         };
         
         var result = await _handler.Handle(request, CancellationToken.None);
