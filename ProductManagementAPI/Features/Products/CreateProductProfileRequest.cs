@@ -8,6 +8,6 @@ public class CreateProductProfileRequest
     public ProductCategory Category { get; set; }
     public decimal Price { get; set; }
     public DateTime ReleaseDate { get; set; }
-    public string? ImageURL { get; set; }
+    public string? ImageUrl { get; set; }
     public int StockQuantity { get; set; } = 1;
 }

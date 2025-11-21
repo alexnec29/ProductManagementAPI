@@ -2,10 +2,12 @@
 using ProductManagementAPI.Features.Products;
 using ProductManagementAPI.Features.Products.DTOs;
 
-public class ImageURLResolver : IValueResolver<Product, ProductProfileDto, string?>
+namespace ProductManagementAPI.Features.Products.Mapping.Resolvers;
+
+public class ImageUrlResolver : IValueResolver<Product, ProductProfileDto, string?>
 {
     public string? Resolve(Product source, ProductProfileDto destination, string? destMember, ResolutionContext context)
     {
-        return source.Category == ProductCategory.Home ? null : source.ImageURL;
+        return source.Category == ProductCategory.Home ? null : source.ImageUrl;
     }
 }
