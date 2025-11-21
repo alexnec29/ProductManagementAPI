@@ -16,10 +16,8 @@ namespace ProductManagementAPI.Features.Products.Mapping.Resolvers
                 return $"{days / 30} months old";
             if (days < 1825)
                 return $"{days / 365} years old";
-            if (days == 1825)
-                return "Classic";
-
-            return "Old Product";
+            
+            return "Classic";
         }
     }
 }
