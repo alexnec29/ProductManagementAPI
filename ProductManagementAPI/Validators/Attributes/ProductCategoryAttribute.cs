@@ -1,7 +1,7 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using ProductManagementAPI.Features.Products;
 
-namespace ProductManagementAPI.Features.Products.Validation;
+namespace ProductManagementAPI.Validators.Attributes;
 
 public class ProductCategoryAttribute : ValidationAttribute
 {

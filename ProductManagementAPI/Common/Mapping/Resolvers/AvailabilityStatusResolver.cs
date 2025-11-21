@@ -2,11 +2,11 @@
 using ProductManagementAPI.Features.Products;
 using ProductManagementAPI.Features.Products.DTOs;
 
-namespace ProductManagementAPI.Features.Products.Mapping.Resolvers
+namespace ProductManagementAPI.Common.Mapping.Resolvers
 {
-    public class AvailabilityStatusResolver : IValueResolver<Product, ProductProfileDto, string>
+    public class AvailabilityStatusResolver : IValueResolver<Product, AdvancedProductDtos, string>
     {
-        public string Resolve(Product source, ProductProfileDto destination, string destMember, ResolutionContext context)
+        public string Resolve(Product source, AdvancedProductDtos destination, string destMember, ResolutionContext context)
         {
             if (!source.IsAvailable)
                 return "Out of Stock";

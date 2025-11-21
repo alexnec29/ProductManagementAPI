@@ -1,12 +1,11 @@
-﻿using AutoMapper;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
+using ProductManagementAPI.Common.Logging;
 using ProductManagementAPI.Data;
 using ProductManagementAPI.Features.Products.DTOs;
-using ProductManagementAPI.Features.Products.Logging;
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
 
 namespace ProductManagementAPI.Features.Products;
 
@@ -29,7 +28,7 @@ public class CreateProductHandler
         _logger = logger;
     }
 
-    public async Task<ProductProfileDto> Handle(CreateProductProfileRequest request, CancellationToken cancellationToken)
+    public async Task<AdvancedProductDtos> Handle(CreateProductProfileRequest request, CancellationToken cancellationToken)
     {
         var stopwatchTotal = Stopwatch.StartNew();
         var operationId = Guid.NewGuid().ToString("N")[..8]; // 8 chars
@@ -78,7 +77,7 @@ public class CreateProductHandler
                 stopwatchTotal.Stop();
 
                 // Log metrics
-                var metrics = new ProductCreationMetrics
+                var metrics = new LoggingModels
                 {
                     OperationId = operationId,
                     ProductName = request.Name,
@@ -92,13 +91,13 @@ public class CreateProductHandler
 
                 _logger.LogProductCreationMetrics(metrics);
 
-                return _mapper.Map<ProductProfileDto>(product);
+                return _mapper.Map<AdvancedProductDtos>(product);
             }
             catch (Exception ex)
             {
                 stopwatchTotal.Stop();
 
-                var metrics = new ProductCreationMetrics
+                var metrics = new LoggingModels
                 {
                     OperationId = operationId,
                     ProductName = request.Name,

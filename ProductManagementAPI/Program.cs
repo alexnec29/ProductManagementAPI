@@ -1,11 +1,11 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using ProductManagementAPI.Common.Mapping;
+using ProductManagementAPI.Common.Middleware;
 using ProductManagementAPI.Data;
 using ProductManagementAPI.Features.Products;
 using ProductManagementAPI.Features.Products.DTOs;
-using ProductManagementAPI.Features.Products.Mapping;
-using ProductManagementAPI.Features.Products.Validation;
-using ProductManagementAPI.Middleware;
+using ProductManagementAPI.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -81,7 +81,7 @@ app.MapPost("/products", async (
         operation.Description = "Creates a new product with advanced validation, logging, and caching";
         return operation;
     })
-    .Produces<ProductProfileDto>(StatusCodes.Status200OK)
+    .Produces<AdvancedProductDtos>(StatusCodes.Status200OK)
     .ProducesValidationProblem();
 
 app.MapGet("/products", async (ApplicationDbContext context, CancellationToken ct) =>

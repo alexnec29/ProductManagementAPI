@@ -1,6 +1,6 @@
 ﻿namespace ProductManagementAPI.Features.Products.DTOs;
 
-public class ProductProfileDto
+public class AdvancedProductDtos
 {
     public Guid Id { get; set; }
     public string Name { get; set; }

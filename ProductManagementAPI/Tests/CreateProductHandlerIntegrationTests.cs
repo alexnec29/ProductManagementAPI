@@ -7,11 +7,11 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Moq;
 using System.ComponentModel.DataAnnotations;
+using ProductManagementAPI.Common.Logging;
+using ProductManagementAPI.Common.Mapping;
 using ProductManagementAPI.Data;
 using ProductManagementAPI.Features.Products;
 using ProductManagementAPI.Features.Products.DTOs;
-using ProductManagementAPI.Features.Products.Mapping;
-using ProductManagementAPI.Features.Products.Logging;
 using Xunit;
 
 namespace ProductManagementAPI.Tests;
@@ -33,7 +33,6 @@ public class CreateProductHandlerIntegrationTests : IDisposable
         
         var config = new MapperConfiguration(cfg =>
         {
-            cfg.AddProfile<ProductMappingProfile>();
             cfg.AddProfile<AdvancedProductMappingProfile>();
         });
         
@@ -68,7 +67,7 @@ public class CreateProductHandlerIntegrationTests : IDisposable
         var result = await _handler.Handle(request, CancellationToken.None);
         
         Assert.NotNull(result);
-        Assert.IsType<ProductProfileDto>(result);
+        Assert.IsType<AdvancedProductDtos>(result);
         
         Assert.Equal("Electronics & Technology", result.CategoryDisplayName);
         

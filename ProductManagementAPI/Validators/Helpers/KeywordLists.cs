@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace ProductManagementAPI.Features.Products.Validation.Helpers
+﻿namespace ProductManagementAPI.Validators.Helpers
 {
     public static class KeywordLists
     {

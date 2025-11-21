@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using System.Threading.Tasks;
-
-namespace ProductManagementAPI.Middleware;
+﻿namespace ProductManagementAPI.Common.Middleware;
 
 public class CorrelationIdMiddleware
 {

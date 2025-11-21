@@ -1,11 +1,11 @@
 ﻿using FluentValidation;
-using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using ProductManagementAPI.Data;
-using ProductManagementAPI.Features.Products.Validation.Helpers;
-using ProductManagementAPI.Features.Products.Validation.BusinessRules;
+using ProductManagementAPI.Features.Products;
+using ProductManagementAPI.Validators.BusinessRules;
+using ProductManagementAPI.Validators.Helpers;
 
-namespace ProductManagementAPI.Features.Products.Validation;
+namespace ProductManagementAPI.Validators;
 
 public class CreateProductProfileValidator : AbstractValidator<CreateProductProfileRequest>
 {

@@ -1,8 +1,9 @@
 ﻿using AutoMapper;
+using ProductManagementAPI.Common.Mapping.Resolvers;
+using ProductManagementAPI.Features.Products;
 using ProductManagementAPI.Features.Products.DTOs;
-using ProductManagementAPI.Features.Products.Mapping.Resolvers;
 
-namespace ProductManagementAPI.Features.Products.Mapping;
+namespace ProductManagementAPI.Common.Mapping;
 
 public class AdvancedProductMappingProfile : Profile
 {
@@ -14,7 +15,7 @@ public class AdvancedProductMappingProfile : Profile
             .ForMember(dest => dest.IsAvailable, opt => opt.MapFrom(src => src.StockQuantity > 0))
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore());
         
-        CreateMap<Product, ProductProfileDto>()
+        CreateMap<Product, AdvancedProductDtos>()
             .ForMember(dest => dest.CategoryDisplayName, opt => opt.MapFrom<CategoryDisplayResolver>())
             .ForMember(dest => dest.FormattedPrice, opt => opt.MapFrom<PriceFormatterResolver>())
             .ForMember(dest => dest.ProductAge, opt => opt.MapFrom<ProductAgeResolver>())

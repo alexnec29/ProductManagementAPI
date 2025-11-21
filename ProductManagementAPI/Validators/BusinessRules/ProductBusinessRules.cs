@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using ProductManagementAPI.Data;
-using ProductManagementAPI.Features.Products.Validation.Helpers;
+using ProductManagementAPI.Features.Products;
+using ProductManagementAPI.Validators.Helpers;
 
-namespace ProductManagementAPI.Features.Products.Validation.BusinessRules;
+namespace ProductManagementAPI.Validators.BusinessRules;
 
 public class ProductBusinessRules
 {

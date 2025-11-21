@@ -1,8 +1,8 @@
 ﻿using ProductManagementAPI.Features.Products;
 
-namespace ProductManagementAPI.Features.Products.Logging;
+namespace ProductManagementAPI.Common.Logging;
 
-public record ProductCreationMetrics
+public record LoggingModels
 {
     public string OperationId { get; init; } = string.Empty;
     public string ProductName { get; init; } = string.Empty;

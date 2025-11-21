@@ -1,8 +1,6 @@
-﻿using System;
-using System.Linq;
-using ProductManagementAPI.Features.Products.Validation.Helpers;
+﻿using ProductManagementAPI.Features.Products;
 
-namespace ProductManagementAPI.Features.Products.Validation.Helpers
+namespace ProductManagementAPI.Validators.Helpers
 {
     public static class ValidationHelpers
     {

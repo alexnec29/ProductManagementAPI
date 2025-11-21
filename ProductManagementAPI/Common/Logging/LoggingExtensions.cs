@@ -1,12 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
-
-namespace ProductManagementAPI.Features.Products.Logging;
+﻿namespace ProductManagementAPI.Common.Logging;
 
 public static class LoggingExtensions
 {
     public static void LogProductCreationMetrics(
         this ILogger logger,
-        ProductCreationMetrics metrics)
+        LoggingModels metrics)
     {
         logger.LogInformation(
             "OperationId={OperationId} | Product={ProductName} | SKU={SKU} | Category={Category} | " +

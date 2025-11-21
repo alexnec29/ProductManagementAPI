@@ -1,4 +1,4 @@
-﻿namespace ProductManagementAPI.Features.Products.Logging;
+﻿namespace ProductManagementAPI.Common.Logging;
 
 public static class LogEvents
 {

@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+
+namespace ProductManagementAPI.Validators.Attributes;
 
 public class ValidSKUAttribute : ValidationAttribute, IClientModelValidator
 {

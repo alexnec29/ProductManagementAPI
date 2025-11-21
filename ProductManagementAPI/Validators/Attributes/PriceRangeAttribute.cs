@@ -1,5 +1,6 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace ProductManagementAPI.Validators.Attributes;
 
 public class PriceRangeAttribute : ValidationAttribute
 {
