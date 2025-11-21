@@ -15,7 +15,6 @@ namespace ProductManagementAPI.Tests;
 public class CreateProductHandlerIntegrationTests : IDisposable
 {
     private readonly ApplicationDbContext _context;
-    private readonly IMapper _mapper;
     private readonly IMemoryCache _cache;
     private readonly Mock<ILogger<CreateProductHandler>> _loggerMock;
     private readonly CreateProductHandler _handler;
@@ -25,24 +24,25 @@ public class CreateProductHandlerIntegrationTests : IDisposable
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
+
         _context = new ApplicationDbContext(options);
-        
+
         var config = new MapperConfiguration(cfg =>
         {
             cfg.AddProfile<AdvancedProductMappingProfile>();
         });
-        
         config.AssertConfigurationIsValid();
-        _mapper = config.CreateMapper();
+        var mapper = config.CreateMapper();
+
         _cache = new MemoryCache(new MemoryCacheOptions());
         _loggerMock = new Mock<ILogger<CreateProductHandler>>();
-        _handler = new CreateProductHandler(_context, _mapper, _cache, _loggerMock.Object);
+        _handler = new CreateProductHandler(_context, mapper, _cache, _loggerMock.Object);
     }
 
     public void Dispose()
     {
-        _context?.Dispose();
-        _cache?.Dispose();
+        _context.Dispose();
+        _cache.Dispose();
     }
 
     [Fact]
@@ -59,29 +59,24 @@ public class CreateProductHandlerIntegrationTests : IDisposable
             StockQuantity = 10,
             ImageUrl = "https://example.com/image.jpg"
         };
-        
+
         var result = await _handler.Handle(request, CancellationToken.None);
-        
+
         Assert.NotNull(result);
         Assert.IsType<AdvancedProductDtos>(result);
-        
         Assert.Equal("Electronics & Technology", result.CategoryDisplayName);
-        
         Assert.Equal("TC", result.BrandInitials);
-        
         Assert.Contains("month", result.ProductAge.ToLower());
-        
         Assert.StartsWith("$", result.FormattedPrice);
-        
         Assert.Equal("In Stock", result.AvailabilityStatus);
-        
+
         _loggerMock.Verify(
             x => x.Log(
                 LogLevel.Information,
                 It.Is<EventId>(e => e.Id == LogEvents.ProductCreationStarted),
                 It.IsAny<It.IsAnyType>(),
                 null,
-                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>() ),
             Times.Once);
     }
 
@@ -103,7 +98,7 @@ public class CreateProductHandlerIntegrationTests : IDisposable
         };
         _context.Products.Add(existingProduct);
         await _context.SaveChangesAsync();
-        
+
         var request = new CreateProductProfileRequest
         {
             Name = "New Product",
@@ -114,19 +109,19 @@ public class CreateProductHandlerIntegrationTests : IDisposable
             ReleaseDate = DateTime.UtcNow,
             StockQuantity = 5
         };
-        
+
         var exception = await Assert.ThrowsAsync<ValidationException>(
             () => _handler.Handle(request, CancellationToken.None));
-        
+
         Assert.Contains("already exists", exception.Message);
-        
+
         _loggerMock.Verify(
             x => x.Log(
                 LogLevel.Warning,
                 It.Is<EventId>(e => e.Id == LogEvents.ProductValidationFailed),
                 It.IsAny<It.IsAnyType>(),
                 null,
-                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>() ),
             Times.Once);
     }
 
@@ -144,15 +139,12 @@ public class CreateProductHandlerIntegrationTests : IDisposable
             StockQuantity = 3,
             ImageUrl = "https://example.com/sofa.jpg"
         };
-        
+
         var result = await _handler.Handle(request, CancellationToken.None);
-        
+
         Assert.Equal("Home & Garden", result.CategoryDisplayName);
-        
         Assert.Equal(450m, result.Price);
-        
         Assert.Null(result.ImageUrl);
-        
         Assert.Equal("HD", result.BrandInitials);
         Assert.Equal("Limited Stock", result.AvailabilityStatus);
     }
@@ -170,16 +162,16 @@ public class CreateProductHandlerIntegrationTests : IDisposable
             ReleaseDate = DateTime.UtcNow.AddYears(-1),
             StockQuantity = 15
         };
-        
-        var result = await _handler.Handle(request, CancellationToken.None);
-        
+
+        _ = await _handler.Handle(request, CancellationToken.None);
+
         _loggerMock.Verify(
             x => x.Log(
                 LogLevel.Information,
                 It.Is<EventId>(e => e.Id == LogEvents.SkuValidationPerformed),
                 It.IsAny<It.IsAnyType>(),
                 null,
-                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>() ),
             Times.Once);
 
         _loggerMock.Verify(
@@ -188,7 +180,7 @@ public class CreateProductHandlerIntegrationTests : IDisposable
                 It.Is<EventId>(e => e.Id == LogEvents.StockValidationPerformed),
                 It.IsAny<It.IsAnyType>(),
                 null,
-                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>() ),
             Times.Once);
 
         _loggerMock.Verify(
@@ -197,7 +189,7 @@ public class CreateProductHandlerIntegrationTests : IDisposable
                 It.Is<EventId>(e => e.Id == LogEvents.DatabaseOperationStarted),
                 It.IsAny<It.IsAnyType>(),
                 null,
-                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>() ),
             Times.Once);
 
         _loggerMock.Verify(
@@ -206,7 +198,7 @@ public class CreateProductHandlerIntegrationTests : IDisposable
                 It.Is<EventId>(e => e.Id == LogEvents.DatabaseOperationCompleted),
                 It.IsAny<It.IsAnyType>(),
                 null,
-                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>() ),
             Times.Once);
 
         _loggerMock.Verify(
@@ -215,7 +207,7 @@ public class CreateProductHandlerIntegrationTests : IDisposable
                 It.Is<EventId>(e => e.Id == LogEvents.CacheOperationPerformed),
                 It.IsAny<It.IsAnyType>(),
                 null,
-                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>() ),
             Times.Once);
     }
 
@@ -233,9 +225,9 @@ public class CreateProductHandlerIntegrationTests : IDisposable
             StockQuantity = 1,
             ImageUrl = "https://example.com/shirt.jpg"
         };
-        
+
         var result = await _handler.Handle(request, CancellationToken.None);
-        
+
         Assert.Equal("Clothing & Fashion", result.CategoryDisplayName);
         Assert.Equal("New Release", result.ProductAge);
         Assert.Equal("Last Item", result.AvailabilityStatus);
