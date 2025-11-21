@@ -19,9 +19,8 @@ public class AdvancedProductDtos
 
     [ProductCategory(ProductCategory.Electronics, ProductCategory.Clothing, ProductCategory.Books, ProductCategory.Home)]
     public ProductCategory Category { get; set; }
-
-    // Read-only string for display
-    public string CategoryDisplayName => Category.ToString();
+    
+    public string CategoryDisplayName { get; set; } = string.Empty;
 
     [PriceRange(1, 10000)]
     public decimal Price { get; set; }

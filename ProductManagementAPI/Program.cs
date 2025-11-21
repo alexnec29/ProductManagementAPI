@@ -1,25 +1,34 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using ProductManagementAPI.Common.Logging;
 using ProductManagementAPI.Common.Mapping;
 using ProductManagementAPI.Common.Middleware;
 using ProductManagementAPI.Data;
 using ProductManagementAPI.Features.Products;
 using ProductManagementAPI.Features.Products.DTOs;
 using ProductManagementAPI.Validators;
-using ProductManagementAPI.Common.Logging;
+using ProductManagementAPI.Validators.BusinessRules;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options => { options.UseInMemoryDatabase("ProductsDb"); });
 
+// AutoMapper
 builder.Services.AddAutoMapper(typeof(AdvancedProductMappingProfile));
 
+// Validators
 builder.Services.AddScoped<CreateProductProfileValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<CreateProductProfileValidator>();
 
+// Business rules
+builder.Services.AddScoped<ProductBusinessRules>();
+
+// Memory cache
 builder.Services.AddMemoryCache();
 
+// Logging
 builder.Services.AddLogging(logging =>
 {
     logging.ClearProviders();
@@ -28,8 +37,10 @@ builder.Services.AddLogging(logging =>
     logging.SetMinimumLevel(LogLevel.Information);
 });
 
+// Handlers
 builder.Services.AddScoped<CreateProductHandler>();
 
+// Controllers & Swagger
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -44,6 +55,7 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
+// Middleware
 app.UseMiddleware<CorrelationIdMiddleware>();
 
 if (app.Environment.IsDevelopment())
@@ -54,6 +66,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseAuthorization();
 
+// POST /products
 app.MapPost("/products", async (
         CreateProductProfileRequest request,
         CreateProductHandler handler,
@@ -75,7 +88,7 @@ app.MapPost("/products", async (
 
             return Results.ValidationProblem(validationResult.ToDictionary());
         }
-        
+
         logger.LogInformation(LogEvents.DatabaseOperationStarted,
             "Saving product {ProductName} | SKU={SKU} to database", request.Name, request.Sku);
 
@@ -118,6 +131,7 @@ app.MapPost("/products", async (
     .Produces<AdvancedProductDtos>()
     .ProducesValidationProblem();
 
+// GET /products
 app.MapGet("/products", async (ApplicationDbContext context, CancellationToken ct) =>
     {
         var products = await context.Products.ToListAsync(ct);
