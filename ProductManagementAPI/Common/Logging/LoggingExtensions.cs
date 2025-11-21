@@ -11,7 +11,7 @@ public static class LoggingExtensions
             "ValidationMs={ValidationMs} | DatabaseMs={DatabaseMs} | TotalMs={TotalMs} | Success={Success} | Error={ErrorReason}",
             metrics.OperationId,
             metrics.ProductName,
-            metrics.SKU,
+            metrics.Sku,
             metrics.Category,
             metrics.ValidationDuration.TotalMilliseconds,
             metrics.DatabaseSaveDuration.TotalMilliseconds,

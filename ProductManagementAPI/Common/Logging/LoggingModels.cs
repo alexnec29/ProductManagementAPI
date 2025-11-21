@@ -6,7 +6,7 @@ public record LoggingModels
 {
     public string OperationId { get; init; } = string.Empty;
     public string ProductName { get; init; } = string.Empty;
-    public string SKU { get; init; } = string.Empty;
+    public string Sku { get; init; } = string.Empty;
     public ProductCategory Category { get; init; }
     public TimeSpan ValidationDuration { get; init; }
     public TimeSpan DatabaseSaveDuration { get; init; }

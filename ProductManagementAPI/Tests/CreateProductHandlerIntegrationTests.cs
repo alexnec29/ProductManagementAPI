@@ -56,7 +56,7 @@ public class CreateProductHandlerIntegrationTests : IDisposable
         {
             Name = "Smartphone X",
             Brand = "Tech Corp",
-            SKU = "ELEC-12345",
+            Sku = "ELEC-12345",
             Category = ProductCategory.Electronics,
             Price = 999.99m,
             ReleaseDate = DateTime.UtcNow.AddMonths(-2),
@@ -97,7 +97,7 @@ public class CreateProductHandlerIntegrationTests : IDisposable
             Id = Guid.NewGuid(),
             Name = "Existing Product",
             Brand = "BrandA",
-            SKU = "DUPL-001",
+            Sku = "DUPL-001",
             Category = ProductCategory.Books,
             Price = 19.99m,
             ReleaseDate = DateTime.UtcNow,
@@ -112,7 +112,7 @@ public class CreateProductHandlerIntegrationTests : IDisposable
         {
             Name = "New Product",
             Brand = "BrandB",
-            SKU = "DUPL-001",
+            Sku = "DUPL-001",
             Category = ProductCategory.Books,
             Price = 25m,
             ReleaseDate = DateTime.UtcNow,
@@ -141,7 +141,7 @@ public class CreateProductHandlerIntegrationTests : IDisposable
         {
             Name = "Sofa Set",
             Brand = "Home Deco",
-            SKU = "HOME-001",
+            Sku = "HOME-001",
             Category = ProductCategory.Home,
             Price = 500m,
             ReleaseDate = DateTime.UtcNow.AddMonths(-6),
@@ -168,7 +168,7 @@ public class CreateProductHandlerIntegrationTests : IDisposable
         {
             Name = "Test Product",
             Brand = "TestBrand",
-            SKU = "TEST-001",
+            Sku = "TEST-001",
             Category = ProductCategory.Books,
             Price = 29.99m,
             ReleaseDate = DateTime.UtcNow.AddYears(-1),
@@ -180,7 +180,7 @@ public class CreateProductHandlerIntegrationTests : IDisposable
         _loggerMock.Verify(
             x => x.Log(
                 LogLevel.Information,
-                It.Is<EventId>(e => e.Id == LogEvents.SKUValidationPerformed),
+                It.Is<EventId>(e => e.Id == LogEvents.SkuValidationPerformed),
                 It.IsAny<It.IsAnyType>(),
                 null,
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
@@ -230,7 +230,7 @@ public class CreateProductHandlerIntegrationTests : IDisposable
         {
             Name = "Designer Shirt",
             Brand = "FashionBrand",
-            SKU = "CLOTH-001",
+            Sku = "CLOTH-001",
             Category = ProductCategory.Clothing,
             Price = 79.99m,
             ReleaseDate = DateTime.UtcNow.AddDays(-10),

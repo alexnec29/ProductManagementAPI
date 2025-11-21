@@ -37,20 +37,20 @@ public class CreateProductHandler
         {
             _logger.LogInformation(LogEvents.ProductCreationStarted,
                 "Starting product creation: Name={Name}, Brand={Brand}, SKU={SKU}, Category={Category}",
-                request.Name, request.Brand, request.SKU, request.Category);
+                request.Name, request.Brand, request.Sku, request.Category);
 
             var stopwatchValidation = Stopwatch.StartNew();
             try
             {
                 // SKU validation
-                _logger.LogInformation(LogEvents.SKUValidationPerformed, "Validating SKU {SKU}", request.SKU);
+                _logger.LogInformation(LogEvents.SkuValidationPerformed, "Validating SKU {SKU}", request.Sku);
 
-                if (await _context.Products.AnyAsync(p => p.SKU == request.SKU, cancellationToken))
+                if (await _context.Products.AnyAsync(p => p.Sku == request.Sku, cancellationToken))
                 {
                     _logger.LogWarning(LogEvents.ProductValidationFailed,
-                        "SKU '{SKU}' already exists", request.SKU);
+                        "SKU '{SKU}' already exists", request.Sku);
 
-                    throw new ValidationException($"Product with SKU '{request.SKU}' already exists.");
+                    throw new ValidationException($"Product with SKU '{request.Sku}' already exists.");
                 }
 
                 // Stock validation (optional logic)
@@ -81,7 +81,7 @@ public class CreateProductHandler
                 {
                     OperationId = operationId,
                     ProductName = request.Name,
-                    SKU = request.SKU,
+                    Sku = request.Sku,
                     Category = request.Category,
                     ValidationDuration = stopwatchValidation.Elapsed,
                     DatabaseSaveDuration = stopwatchDb.Elapsed,
@@ -101,7 +101,7 @@ public class CreateProductHandler
                 {
                     OperationId = operationId,
                     ProductName = request.Name,
-                    SKU = request.SKU,
+                    Sku = request.Sku,
                     Category = request.Category,
                     ValidationDuration = stopwatchValidation.Elapsed,
                     DatabaseSaveDuration = TimeSpan.Zero,

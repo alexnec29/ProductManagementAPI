@@ -34,7 +34,7 @@ public class CreateProductProfileValidator : AbstractValidator<CreateProductProf
             .Length(2, 100)
             .Must(BeValidBrandName).WithMessage("Brand contains invalid characters");
         
-        RuleFor(x => x.SKU)
+        RuleFor(x => x.Sku)
             .NotEmpty().WithMessage("SKU is required")
             .Must(BeValidSKU).WithMessage("Invalid SKU format (5-20 alphanumeric characters with hyphens)")
             .MustAsync(BeUniqueSKU).WithMessage("SKU already exists");
@@ -114,7 +114,7 @@ public class CreateProductProfileValidator : AbstractValidator<CreateProductProf
     {
         _logger.LogInformation("Checking SKU uniqueness: SKU={SKU}", sku);
         
-        bool exists = await _context.Products.AnyAsync(p => p.SKU == sku, ct);
+        bool exists = await _context.Products.AnyAsync(p => p.Sku == sku, ct);
         
         if (exists)
             _logger.LogWarning("Duplicate SKU found: SKU={SKU}", sku);

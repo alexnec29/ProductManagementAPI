@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace ProductManagementAPI.Validators.Attributes;
 
-public class ValidSKUAttribute : ValidationAttribute, IClientModelValidator
+public class ValidSkuAttribute : ValidationAttribute, IClientModelValidator
 {
     public override bool IsValid(object? value)
     {
